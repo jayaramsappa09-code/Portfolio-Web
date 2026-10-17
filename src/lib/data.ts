@@ -91,7 +91,7 @@ export interface AchievementItem {
 
 export const PROFILE: Profile = {
   name: 'Sappa Jayaram Siva Prasad',
-  shortName: 'Jayaram',
+  shortName: 'Jayaram Sappa',
   role: 'AI Engineer & Full-Stack Developer',
   email: 'jayramsappa537@gmail.com',
   phone: '+91 9381201226',
@@ -105,7 +105,7 @@ export const PROFILE: Profile = {
   linkedinHandle: 'jayaram-sappa09',
   leetcode: 'https://leetcode.com/u/25A31A05GB/',
   leetcodeHandle: '25A31A05GB',
-  portfolio: 'https://portfolio-ten-woad-57.vercel.app',
+  portfolio: 'https://jayaramsappa.vercel.app/',
   resumePdf: '/resume.pdf',
   idNumber: '25A31A05GB',
   department: 'Computer Science & Engineering',

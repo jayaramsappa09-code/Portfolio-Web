@@ -258,7 +258,7 @@ export const Hero: React.FC = () => {
         <span
           className="text-[11vw] sm:text-[12.5vw] lg:text-[13.5vw] font-black uppercase tracking-[0.08em] sm:tracking-[0.14em] lg:tracking-[0.18em] text-[#0d0d0d]/[0.07] leading-none whitespace-nowrap pl-[0.1em] select-none text-center transform -translate-y-6 sm:-translate-y-12 transition-all duration-300"
           style={{
-            letterSpacing: 'clamp(0.06em, 1.8vw, 0.18em)',
+            letterSpacing: 'clamp(0.05em, 1.8vw, 0.18em)',
           }}
         >
           J A Y A R A M
