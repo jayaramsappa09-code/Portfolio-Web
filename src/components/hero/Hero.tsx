@@ -6,6 +6,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { PROFILE } from '../../lib/data';
 import { useScroll } from '../../lib/scroll';
+import {
+  savePersistentVideo,
+  getPersistentVideo,
+  clearPersistentVideo,
+} from '../../lib/videoStorage';
 
 export const Hero: React.FC = () => {
   const { scrollTo } = useScroll();
@@ -16,6 +21,20 @@ export const Hero: React.FC = () => {
   const [soundEnabled, setSoundEnabled] = useState(false);
   const [autoplayBlocked, setAutoplayBlocked] = useState(true);
   const [customVideoLoaded, setCustomVideoLoaded] = useState(false);
+  const [saveToast, setSaveToast] = useState('');
+
+  // Automatically check and load persisted custom video on mount
+  useEffect(() => {
+    getPersistentVideo().then((blob) => {
+      if (blob && videoRef.current) {
+        const url = URL.createObjectURL(blob);
+        videoRef.current.src = url;
+        videoRef.current.load();
+        videoRef.current.play().catch(() => {});
+        setCustomVideoLoaded(true);
+      }
+    });
+  }, []);
 
   // Spoken voiceover fallback with natural male voice for Jayaram's introduction
   const speakIntro = () => {
@@ -167,7 +186,8 @@ export const Hero: React.FC = () => {
   };
 
   // Direct 1:1 original video attachment via drag-and-drop or file selection
-  const handleFileChange = (file: File) => {
+  // Persists permanently in IndexedDB across reloads, tab closes, and site updates
+  const handleFileChange = async (file: File) => {
     if (file && (file.type.startsWith('video/') || file.name.match(/\.(mp4|mov|webm)$/i))) {
       const url = URL.createObjectURL(file);
       if (videoRef.current) {
@@ -176,7 +196,27 @@ export const Hero: React.FC = () => {
         videoRef.current.play().catch(() => {});
         setCustomVideoLoaded(true);
       }
+      try {
+        await savePersistentVideo(file);
+        setSaveToast('Custom video saved permanently ✓');
+        setTimeout(() => setSaveToast(''), 3500);
+      } catch (err) {
+        console.warn('Could not save to IndexedDB:', err);
+      }
     }
+  };
+
+  const handleResetToDefault = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    await clearPersistentVideo();
+    setCustomVideoLoaded(false);
+    if (videoRef.current) {
+      videoRef.current.src = '/hero/hero.mp4';
+      videoRef.current.load();
+      videoRef.current.play().catch(() => {});
+    }
+    setSaveToast('Reset to default video ✓');
+    setTimeout(() => setSaveToast(''), 3000);
   };
 
   return (
@@ -191,6 +231,13 @@ export const Hero: React.FC = () => {
         if (file) handleFileChange(file);
       }}
     >
+      {/* Toast Notification when video is permanently saved */}
+      {saveToast && (
+        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-full bg-[#0d0d0d] text-white text-xs font-mono shadow-xl animate-in fade-in slide-in-from-top-2 duration-200">
+          {saveToast}
+        </div>
+      )}
+
       {/* Hidden file input for uploading exact original video */}
       <input
         ref={fileInputRef}
@@ -203,13 +250,16 @@ export const Hero: React.FC = () => {
         }}
       />
 
-      {/* 1. Giant Watermark Name (Matching 'L O H I T H A' in reference photo) */}
+      {/* 1. Giant Watermark Name: Fully visible, uncropped J A Y A R A M spanning across center */}
       <div
         className="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden"
         aria-hidden="true"
       >
         <span
-          className="text-[17vw] font-black uppercase tracking-[0.16em] sm:tracking-[0.22em] text-[#dfdcd4] leading-none whitespace-nowrap pl-[0.16em] transform -translate-y-8 sm:-translate-y-12"
+          className="text-[11vw] sm:text-[12.5vw] lg:text-[13.5vw] font-black uppercase tracking-[0.08em] sm:tracking-[0.14em] lg:tracking-[0.18em] text-[#0d0d0d]/[0.07] leading-none whitespace-nowrap pl-[0.1em] select-none text-center transform -translate-y-6 sm:-translate-y-12 transition-all duration-300"
+          style={{
+            letterSpacing: 'clamp(0.06em, 1.8vw, 0.18em)',
+          }}
         >
           J A Y A R A M
         </span>
@@ -235,15 +285,24 @@ export const Hero: React.FC = () => {
             <source src="/hero/hero.webm" type="video/webm" />
           </video>
 
-          {/* Discreet file selector button on hover if user drops custom file */}
-          <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-auto">
+          {/* Persistent Video Control Badge */}
+          <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-auto flex items-center gap-2">
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="px-2.5 py-1 rounded-full bg-[#0d0d0d]/80 text-white text-[10px] font-mono backdrop-blur-md hover:bg-[#0d0d0d] transition-colors shadow-sm cursor-pointer"
-              title="Select local intro video file"
+              className="px-3 py-1.5 rounded-full bg-[#0d0d0d]/85 text-white text-[11px] font-mono backdrop-blur-md hover:bg-[#0d0d0d] transition-colors shadow-sm cursor-pointer"
+              title="Upload your video to persist permanently in browser"
             >
-              {customVideoLoaded ? 'Original Loaded ✓' : 'File Input'}
+              {customVideoLoaded ? 'Custom Video (Saved ✓)' : 'Upload Video File'}
             </button>
+            {customVideoLoaded && (
+              <button
+                onClick={handleResetToDefault}
+                className="px-2.5 py-1.5 rounded-full bg-white/90 text-[#0d0d0d] text-[11px] font-mono backdrop-blur-md hover:bg-white border border-[#0d0d0d]/10 transition-colors shadow-sm cursor-pointer"
+                title="Reset back to default 3D animation"
+              >
+                Reset
+              </button>
+            )}
           </div>
         </div>
       </div>
