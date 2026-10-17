@@ -6,18 +6,47 @@
 import React, { useRef } from 'react';
 import { TIMELINE } from '../../lib/data';
 import { useInView, useElementScrollProgress } from '../../lib/hooks';
+import { useSectionReadingTime } from '../../lib/readingTime';
 
 export const Experience: React.FC = () => {
   const [sectionRef, inView] = useInView({ threshold: 0.1 });
   const containerRef = useRef<HTMLDivElement | null>(null);
   const scrollProgress = useElementScrollProgress(containerRef);
 
+  // Dynamic reading time calculation based on Experience section word count
+  const fallbackTimelineText = TIMELINE.map((t) => `${t.title} ${t.organization} ${t.details.join(' ')}`).join(' ');
+  const readingTime = useSectionReadingTime(sectionRef, fallbackTimelineText);
+
   return (
     <section id="experience" ref={sectionRef} className="site-section bg-[#f4f2ee] relative">
       <div className="site-container">
-        {/* Section Tag & Heading */}
+        {/* Section Tag & Heading + Reading Time Badge */}
         <div className={`mb-16 rv ${inView ? 'is-in' : ''}`}>
-          <div className="font-mono-tag mb-3">05 — Career & Education</div>
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
+            <div className="font-mono-tag">05 — Career & Education</div>
+
+            {/* Estimated Reading Time Display */}
+            <div
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-[#0d0d0d]/10 text-xs font-mono text-[#555555] shadow-xs"
+              title={`Estimated at standard ~200 words per minute (${readingTime.wordCount} words)`}
+            >
+              <svg
+                className="w-3.5 h-3.5 text-[#0d0d0d]"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth="2"
+                aria-hidden="true"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <polyline points="12 6 12 12 16 14" />
+              </svg>
+              <span className="font-semibold text-[#0d0d0d]">{readingTime.displayText}</span>
+              <span className="text-[#a9a6a0]">·</span>
+              <span className="text-[#77756f]">{readingTime.wordCount} words</span>
+            </div>
+          </div>
+
           <h2 className="heading-display text-4xl sm:text-5xl md:text-6xl text-balance">
             One continuous <span className="font-serif-italic">path.</span>
           </h2>

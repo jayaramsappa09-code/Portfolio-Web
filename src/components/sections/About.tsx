@@ -6,6 +6,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { PROFILE } from '../../lib/data';
 import { useInView } from '../../lib/hooks';
+import { useSectionReadingTime } from '../../lib/readingTime';
 
 export const About: React.FC = () => {
   const [sectionRef, inView] = useInView({ threshold: 0.1 });
@@ -18,6 +19,9 @@ export const About: React.FC = () => {
   const velocityRef = useRef(0);
   const lastMouseXRef = useRef<number | null>(null);
   const lastTimeRef = useRef<number>(performance.now());
+
+  // Dynamic reading time calculation based on section word count
+  const readingTime = useSectionReadingTime(sectionRef, PROFILE.resumeSummary);
 
   // Interactive pendulum spring damping + subtle idle sway
   useEffect(() => {
@@ -71,9 +75,33 @@ export const About: React.FC = () => {
   return (
     <section id="about" ref={sectionRef} className="site-section bg-[#f4f2ee] relative">
       <div className="site-container">
-        {/* Section Tag & Heading */}
+        {/* Section Tag & Heading + Reading Time Badge */}
         <div className={`mb-16 rv ${inView ? 'is-in' : ''}`}>
-          <div className="font-mono-tag mb-3">01 — About the Engineer</div>
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
+            <div className="font-mono-tag">01 — About the Engineer</div>
+            
+            {/* Estimated Reading Time Display */}
+            <div
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-[#0d0d0d]/10 text-xs font-mono text-[#555555] shadow-xs"
+              title={`Estimated at standard ~200 words per minute (${readingTime.wordCount} words)`}
+            >
+              <svg
+                className="w-3.5 h-3.5 text-[#0d0d0d]"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth="2"
+                aria-hidden="true"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <polyline points="12 6 12 12 16 14" />
+              </svg>
+              <span className="font-semibold text-[#0d0d0d]">{readingTime.displayText}</span>
+              <span className="text-[#a9a6a0]">·</span>
+              <span className="text-[#77756f]">{readingTime.wordCount} words</span>
+            </div>
+          </div>
+
           <h2 className="heading-display text-4xl sm:text-5xl md:text-6xl text-balance">
             Human identity, <span className="font-serif-italic">verified.</span>
           </h2>

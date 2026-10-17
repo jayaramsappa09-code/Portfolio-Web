@@ -12,13 +12,17 @@ export const Navigation: React.FC = () => {
   const { scrollTo } = useScroll();
   const scrollProgress = useScrollProgress();
   const [scrolled, setScrolled] = useState(false);
-  const [activeId, setActiveId] = useState('about');
+  const [activeId, setActiveId] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // Monitor scroll for header style transition
+  // Monitor scroll for header style transition and reset activeId at top
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 40);
+      const isScrolled = window.scrollY > 40;
+      setScrolled(isScrolled);
+      if (window.scrollY < 260) {
+        setActiveId('');
+      }
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     handleScroll();
@@ -30,7 +34,7 @@ export const Navigation: React.FC = () => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) {
+          if (entry.isIntersecting && window.scrollY >= 260) {
             setActiveId(entry.target.id);
           }
         });
@@ -83,41 +87,19 @@ export const Navigation: React.FC = () => {
         }`}
       >
         <div className="site-container flex items-center justify-between">
-          {/* Left: Initials mark + Full Name */}
+          {/* Left: Clean plain text Name (matching reference exactly) */}
           <a
             href="#hero"
             onClick={(e) => handleNavClick(e, '#hero')}
-            className="flex items-center gap-3 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0d0d0d] rounded-full p-1"
+            className="text-xs sm:text-sm font-medium tracking-tight text-[#0d0d0d] hover:opacity-70 transition-opacity focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#0d0d0d] rounded-sm py-1"
             aria-label="Sappa Jayaram Siva Prasad - Scroll to top"
           >
-            <div
-              className={`w-9 h-9 rounded-full flex items-center justify-center font-mono text-xs font-semibold tracking-wider transition-all duration-300 group-hover:rotate-[360deg] ${
-                scrolled
-                  ? 'bg-[#0d0d0d] text-[#ffffff] border border-[#0d0d0d]'
-                  : 'bg-transparent text-[#0d0d0d] border border-[#0d0d0d]/30'
-              }`}
-            >
-              JP
-            </div>
-            <span
-              className={`font-semibold tracking-tight text-sm text-[#0d0d0d] whitespace-nowrap transition-opacity duration-300 hidden sm:inline-block ${
-                scrolled ? 'opacity-0 pointer-events-none' : 'opacity-100'
-              }`}
-            >
-              {PROFILE.name}
-            </span>
+            {PROFILE.name}
           </a>
 
-          {/* Desktop Center/Right Nav Pill + Sound Toggle */}
-          <div className="hidden md:flex items-center gap-3">
-            <nav
-              aria-label="Primary navigation"
-              className={`flex items-center gap-1 p-1.5 rounded-full transition-all duration-300 relative ${
-                scrolled
-                  ? 'bg-[#ffffff]/85 backdrop-blur-[12px] border border-[#0d0d0d]/10 shadow-[0_8px_30px_rgb(0,0,0,0.04)]'
-                  : 'bg-transparent'
-              }`}
-            >
+          {/* Right: Clean Text Links + Circular Sound Button */}
+          <div className="hidden md:flex items-center gap-6 lg:gap-8">
+            <nav aria-label="Primary navigation" className="flex items-center gap-6 lg:gap-8">
               {NAV_ITEMS.map((item) => {
                 const isActive = activeId === item.id;
                 return (
@@ -125,57 +107,50 @@ export const Navigation: React.FC = () => {
                     key={item.id}
                     href={item.href}
                     onClick={(e) => handleNavClick(e, item.href)}
-                    className={`relative z-10 px-3.5 py-1.5 text-xs font-medium rounded-full transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0d0d0d] ${
-                      isActive ? 'text-[#ffffff]' : 'text-[#77756f] hover:text-[#0d0d0d]'
+                    className={`text-xs font-normal transition-colors hover:text-[#0d0d0d] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#0d0d0d] ${
+                      isActive ? 'text-[#0d0d0d] font-semibold' : 'text-[#666666]'
                     }`}
                   >
-                    {isActive && (
-                      <span
-                        className="absolute inset-0 bg-[#0d0d0d] rounded-full -z-10 transition-all duration-300 ease-[cubic-bezier(.16,1,.3,1)] shadow-sm"
-                        layout-id="activePill"
-                      />
-                    )}
                     {item.label}
                   </a>
                 );
               })}
             </nav>
 
-            {/* Audio Toggle Button in Header matching reference */}
+            {/* Circular Sound Toggle (matching top-right blue/black circle on laptop screen) */}
             <button
               onClick={() => window.dispatchEvent(new CustomEvent('toggle-sound-event'))}
-              className="w-9 h-9 rounded-full bg-[#0d0d0d] text-white flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0d0d0d] cursor-pointer"
+              className="w-8 h-8 rounded-full bg-[#1e293b] text-white flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0d0d0d] cursor-pointer ml-2"
               aria-label="Toggle audio introduction"
               title="Toggle audio introduction"
             >
               <span className="flex items-center justify-center" aria-hidden="true">
                 <span className="flex gap-1 items-center">
-                  <span className="w-1 h-3.5 bg-white rounded-xs" />
-                  <span className="w-1 h-3.5 bg-white rounded-xs" />
+                  <span className="w-1 h-3 bg-white rounded-xs" />
+                  <span className="w-1 h-3 bg-white rounded-xs" />
                 </span>
               </span>
             </button>
           </div>
 
-          {/* Right Mobile Menu Button + Sound */}
-          <div className="flex items-center gap-2 md:hidden">
+          {/* Mobile Right: Sound + Menu */}
+          <div className="flex items-center gap-3 md:hidden">
             <button
               onClick={() => window.dispatchEvent(new CustomEvent('toggle-sound-event'))}
-              className="w-9 h-9 rounded-full bg-[#0d0d0d] text-white flex items-center justify-center active:scale-95 transition-all shadow-sm"
+              className="w-8 h-8 rounded-full bg-[#1e293b] text-white flex items-center justify-center active:scale-95 transition-all shadow-sm"
               aria-label="Toggle audio"
               title="Toggle audio"
             >
               <span className="flex gap-1 items-center" aria-hidden="true">
-                <span className="w-1 h-3 bg-white rounded-xs" />
-                <span className="w-1 h-3 bg-white rounded-xs" />
+                <span className="w-1 h-2.5 bg-white rounded-xs" />
+                <span className="w-1 h-2.5 bg-white rounded-xs" />
               </span>
             </button>
 
             <button
               onClick={() => setMobileMenuOpen(true)}
-              className="px-4 py-2 text-xs font-semibold uppercase tracking-wider rounded-full bg-[#ffffff]/90 border border-[#0d0d0d]/10 text-[#0d0d0d] shadow-sm backdrop-blur-md active:scale-95"
-              aria-label="Open navigation menu"
-              aria-expanded={mobileMenuOpen}
+              className="px-3.5 py-1.5 text-xs font-medium rounded-full bg-white/80 border border-[#0d0d0d]/10 text-[#0d0d0d]"
+              aria-label="Open menu"
             >
               Menu
             </button>

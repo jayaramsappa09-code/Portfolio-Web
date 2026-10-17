@@ -92,7 +92,7 @@ export interface AchievementItem {
 export const PROFILE: Profile = {
   name: 'Sappa Jayaram Siva Prasad',
   shortName: 'Jayaram',
-  role: 'Software Engineer & AI Engineer | AI-Powered Full-Stack Developer',
+  role: 'AI Engineer & Full-Stack Developer',
   email: 'jayramsappa537@gmail.com',
   phone: '+91 9381201226',
   phoneHref: 'tel:+919381201226',
