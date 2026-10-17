@@ -55,21 +55,15 @@ export const Hero: React.FC = () => {
     const video = videoRef.current;
     if (!video) return;
 
-    // Try playing with sound initially
     video.muted = true;
     const playPromise = video.play();
 
     if (playPromise !== undefined) {
-      playPromise
-        .then(() => {
-          // Play successful muted
-        })
-        .catch(() => {
-          setAutoplayBlocked(true);
-        });
+      playPromise.catch(() => {
+        setAutoplayBlocked(true);
+      });
     }
 
-    // Unlock sound on first user gesture
     const unlockSound = () => {
       setAutoplayBlocked(false);
       window.removeEventListener('pointerdown', unlockSound);
@@ -87,6 +81,15 @@ export const Hero: React.FC = () => {
       window.removeEventListener('touchend', unlockSound);
     };
   }, []);
+
+  // Listen for global sound toggle from Navigation header
+  useEffect(() => {
+    const handleGlobalToggle = () => {
+      toggleSound();
+    };
+    window.addEventListener('toggle-sound-event', handleGlobalToggle);
+    return () => window.removeEventListener('toggle-sound-event', handleGlobalToggle);
+  }, [soundEnabled]);
 
   // IntersectionObserver: Pause video & voice when less than 35% visible
   useEffect(() => {
@@ -121,9 +124,24 @@ export const Hero: React.FC = () => {
 
     if (!soundEnabled) {
       video.muted = false;
-      setSoundEnabled(true);
-      setAutoplayBlocked(false);
-      speakIntro();
+      video.volume = 1.0;
+      video.currentTime = 0;
+      const playPromise = video.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            setSoundEnabled(true);
+            setAutoplayBlocked(false);
+          })
+          .catch(() => {
+            setSoundEnabled(true);
+            setAutoplayBlocked(false);
+            speakIntro();
+          });
+      } else {
+        setSoundEnabled(true);
+        setAutoplayBlocked(false);
+      }
     } else {
       video.muted = true;
       setSoundEnabled(false);
@@ -171,115 +189,52 @@ export const Hero: React.FC = () => {
         }}
       />
 
-      {/* Giant outlined ghost word behind the person */}
+      {/* Giant watermark name spanning horizontally across the canvas behind avatar */}
       <div
         className="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden"
         aria-hidden="true"
       >
         <span
-          className="text-[20vw] font-black uppercase tracking-tighter text-transparent leading-none"
-          style={{
-            WebkitTextStroke: '1.5px rgba(13, 13, 13, 0.08)',
-          }}
+          className="text-[14vw] lg:text-[16vw] font-black uppercase tracking-[0.22em] sm:tracking-[0.3em] text-[#0d0d0d]/[0.045] leading-none whitespace-nowrap pl-[0.25em]"
         >
-          {PROFILE.shortName.toUpperCase()}
+          J A Y A R A M
         </span>
       </div>
 
-      {/* Center Video Container */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
-        <div
-          className="relative w-full max-w-[768px] aspect-[768/960] h-[62svh] md:h-[min(96svh,1040px)] flex items-center justify-center group pointer-events-auto"
-          title="Drag and drop your original intro.mp4 here or click upload to load directly"
-        >
-          <video
-            ref={videoRef}
-            muted
-            loop
-            playsInline
-            preload="auto"
-            poster="/portrait-bust.webp"
-            className="w-full h-full object-contain mix-blend-multiply transition-opacity duration-300"
-          >
-            <source src="/hero/hero.webm" type="video/webm" />
-            <source src="/hero/hero.mp4" type="video/mp4" />
-          </video>
-
-          {/* Quick upload badge to load exact original video file */}
-          <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              className="px-3 py-1.5 rounded-full bg-[#0d0d0d]/80 text-white text-[11px] font-mono backdrop-blur-md hover:bg-[#0d0d0d] transition-colors shadow-sm"
-              title="Select local intro.mp4 to play 100% untouched original video frames"
-            >
-              {customVideoLoaded ? 'Original Video Loaded ✓' : 'Load Original Video File'}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Floating Sound Control: 46px solid ink round button */}
-      <div className="site-container relative z-20 flex justify-end">
-        <div className="relative">
-          {autoplayBlocked && (
-            <span
-              className="absolute -inset-1 rounded-full bg-[#0d0d0d]/15 animate-ping pointer-events-none"
-              aria-hidden="true"
-            />
-          )}
-          <button
-            onClick={toggleSound}
-            className="relative w-[46px] h-[46px] rounded-full bg-[#0d0d0d] text-[#ffffff] flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0d0d0d] focus-visible:ring-offset-2 cursor-pointer"
-            aria-label={soundEnabled ? 'Mute audio' : 'Unmute audio (male voice dialogue)'}
-          >
-            {soundEnabled ? (
-              // ❚❚ (two pause bars indicating sound is active)
-              <span className="flex gap-1 items-center" aria-hidden="true">
-                <span className="w-1.5 h-4 bg-white rounded-xs" />
-                <span className="w-1.5 h-4 bg-white rounded-xs" />
-              </span>
-            ) : (
-              // ▶ (triangle play symbol)
-              <span
-                className="w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-l-[10px] border-l-white ml-0.5"
-                aria-hidden="true"
-              />
-            )}
-          </button>
-        </div>
-      </div>
-
-      {/* Hero Bottom Content Overlay: Role heading + CTAs */}
-      <div className="site-container relative z-20 mt-auto">
-        <div className="max-w-2xl bg-[#f4f2ee]/85 backdrop-blur-[6px] p-6 sm:p-8 rounded-[28px] border border-[#0d0d0d]/5 shadow-[0_12px_40px_rgba(0,0,0,0.03)] rv is-in">
-          <div className="font-mono-tag mb-3 flex items-center gap-2">
-            <span>00</span>
-            <span>—</span>
-            <span>AI Engineer & Software Developer · Andhra Pradesh, India</span>
+      {/* Main Hero Viewport Composition: Left Copy + Center-Right 3D Character */}
+      <div className="site-container relative z-10 my-auto grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center min-h-[calc(100svh-8rem)]">
+        
+        {/* Left Side: Editorial Typography & Actions */}
+        <div className="lg:col-span-7 flex flex-col justify-center order-2 lg:order-1 pt-4 lg:pt-0">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#ffffff] border border-[#0d0d0d]/10 w-fit mb-5 shadow-xs">
+            <span className="w-2 h-2 rounded-full bg-[#10b981] animate-pulse" />
+            <span className="font-mono text-xs uppercase tracking-wider font-semibold text-[#0d0d0d]">
+              HEY, I AM JAYARAM
+            </span>
           </div>
 
-          <h1 className="heading-display text-4xl sm:text-5xl md:text-6xl mb-3 text-balance">
+          <h1 className="heading-display text-4xl sm:text-5xl lg:text-6xl text-[#0d0d0d] mb-4 text-balance">
             AI Engineer & <br className="hidden sm:inline" />
             <span className="font-serif-italic text-[#77756f]">Full-Stack</span> Software Developer.
           </h1>
 
-          {/* AI Specialization Chips */}
-          <div className="flex flex-wrap items-center gap-1.5 mb-4">
-            <span className="text-[11px] font-mono px-2.5 py-1 rounded-full bg-[#0d0d0d] text-white font-medium">
+          {/* Core Credentials & Badges */}
+          <div className="flex flex-wrap items-center gap-2 mb-5">
+            <span className="text-[11px] font-mono px-3 py-1 rounded-full bg-[#0d0d0d] text-white font-medium shadow-xs">
               AI Engineer
             </span>
-            <span className="text-[11px] font-mono px-2.5 py-1 rounded-full bg-white border border-[#0d0d0d]/10 text-[#3a3a3a]">
-              Google GenAI (Gemini)
+            <span className="text-[11px] font-mono px-3 py-1 rounded-full bg-[#ffffff] border border-[#0d0d0d]/10 text-[#222222] font-medium shadow-xs">
+              Pragati Engg College · 9.30 CGPA
             </span>
-            <span className="text-[11px] font-mono px-2.5 py-1 rounded-full bg-white border border-[#0d0d0d]/10 text-[#3a3a3a]">
-              RAG & Embeddings
+            <span className="text-[11px] font-mono px-3 py-1 rounded-full bg-[#ffffff] border border-[#0d0d0d]/10 text-[#222222] font-medium shadow-xs">
+              ServiceNow Intern
             </span>
-            <span className="text-[11px] font-mono px-2.5 py-1 rounded-full bg-white border border-[#0d0d0d]/10 text-[#3a3a3a]">
-              Agentic AI
+            <span className="text-[11px] font-mono px-3 py-1 rounded-full bg-[#ffffff] border border-[#0d0d0d]/10 text-[#222222] font-medium shadow-xs">
+              150+ LeetCode Solved
             </span>
           </div>
 
-          <p className="text-[#3a3a3a] text-sm sm:text-base leading-relaxed mb-6 max-w-xl">
+          <p className="text-[#3a3a3a] text-sm sm:text-base leading-relaxed mb-7 max-w-xl">
             {PROFILE.resumeSummary}
           </p>
 
@@ -287,28 +242,81 @@ export const Hero: React.FC = () => {
           <div className="flex flex-wrap items-center gap-3">
             <button
               onClick={() => scrollTo('#work')}
-              className="btn-primary"
+              className="btn-primary cursor-pointer"
             >
               Explore work
-            </button>
-
-            <button
-              onClick={() => scrollTo('#contact')}
-              className="btn-secondary"
-            >
-              Let's talk
             </button>
 
             <a
               href={PROFILE.resumePdf}
               download="Sappa_Jayaram_Siva_Prasad_Resume.pdf"
-              className="btn-secondary group"
+              className="btn-secondary group cursor-pointer inline-flex items-center gap-2"
             >
-              <span>Résumé</span>
+              <span>Download Résumé</span>
               <span className="font-mono group-hover:translate-y-0.5 transition-transform">↓</span>
             </a>
+
+            <button
+              onClick={() => scrollTo('#contact')}
+              className="btn-secondary cursor-pointer"
+            >
+              Let's talk
+            </button>
+
+            {/* In-Hero Sound Toggle matching reference */}
+            <button
+              onClick={toggleSound}
+              className="w-10 h-10 rounded-full bg-[#0d0d0d] text-white flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-sm cursor-pointer ml-auto sm:ml-0"
+              aria-label={soundEnabled ? 'Mute audio' : 'Unmute male dialogue introduction'}
+              title={soundEnabled ? 'Mute voice' : 'Play male voice introduction'}
+            >
+              {soundEnabled ? (
+                <span className="flex gap-1 items-center" aria-hidden="true">
+                  <span className="w-1 h-3.5 bg-white rounded-xs" />
+                  <span className="w-1 h-3.5 bg-white rounded-xs" />
+                </span>
+              ) : (
+                <span
+                  className="w-0 h-0 border-t-[5px] border-t-transparent border-b-[5px] border-b-transparent border-l-[8px] border-l-white ml-0.5"
+                  aria-hidden="true"
+                />
+              )}
+            </button>
           </div>
         </div>
+
+        {/* Right Side / Center: Grounded 3D Avatar Video */}
+        <div className="lg:col-span-5 flex justify-center items-center order-1 lg:order-2 relative">
+          <div
+            className="relative w-full max-w-[420px] sm:max-w-[480px] lg:max-w-[520px] aspect-[768/960] flex items-center justify-center group"
+            title="Untouched original video frames"
+          >
+            <video
+              ref={videoRef}
+              muted
+              loop
+              playsInline
+              preload="auto"
+              poster="/portrait-bust.webp"
+              className="w-full h-full object-contain mix-blend-multiply transition-opacity duration-300"
+            >
+              <source src="/hero/hero.webm" type="video/webm" />
+              <source src="/hero/hero.mp4" type="video/mp4" />
+            </video>
+
+            {/* Quick upload badge to load exact original video file if needed */}
+            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="px-2.5 py-1 rounded-full bg-[#0d0d0d]/80 text-white text-[10px] font-mono backdrop-blur-md hover:bg-[#0d0d0d] transition-colors shadow-sm cursor-pointer"
+                title="Select local intro video file"
+              >
+                {customVideoLoaded ? 'Original Loaded ✓' : 'File Input'}
+              </button>
+            </div>
+          </div>
+        </div>
+
       </div>
     </section>
   );

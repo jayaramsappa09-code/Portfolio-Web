@@ -108,41 +108,69 @@ export const Navigation: React.FC = () => {
             </span>
           </a>
 
-          {/* Desktop Center/Right Nav Pill */}
-          <nav
-            aria-label="Primary navigation"
-            className={`hidden md:flex items-center gap-1 p-1.5 rounded-full transition-all duration-300 relative ${
-              scrolled
-                ? 'bg-[#ffffff]/85 backdrop-blur-[12px] border border-[#0d0d0d]/10 shadow-[0_8px_30px_rgb(0,0,0,0.04)]'
-                : 'bg-transparent'
-            }`}
-          >
-            {NAV_ITEMS.map((item) => {
-              const isActive = activeId === item.id;
-              return (
-                <a
-                  key={item.id}
-                  href={item.href}
-                  onClick={(e) => handleNavClick(e, item.href)}
-                  className={`relative z-10 px-3.5 py-1.5 text-xs font-medium rounded-full transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0d0d0d] ${
-                    isActive ? 'text-[#ffffff]' : 'text-[#77756f] hover:text-[#0d0d0d]'
-                  }`}
-                >
-                  {/* Sliding solid ink active indicator pill */}
-                  {isActive && (
-                    <span
-                      className="absolute inset-0 bg-[#0d0d0d] rounded-full -z-10 transition-all duration-300 ease-[cubic-bezier(.16,1,.3,1)] shadow-sm"
-                      layout-id="activePill"
-                    />
-                  )}
-                  {item.label}
-                </a>
-              );
-            })}
-          </nav>
+          {/* Desktop Center/Right Nav Pill + Sound Toggle */}
+          <div className="hidden md:flex items-center gap-3">
+            <nav
+              aria-label="Primary navigation"
+              className={`flex items-center gap-1 p-1.5 rounded-full transition-all duration-300 relative ${
+                scrolled
+                  ? 'bg-[#ffffff]/85 backdrop-blur-[12px] border border-[#0d0d0d]/10 shadow-[0_8px_30px_rgb(0,0,0,0.04)]'
+                  : 'bg-transparent'
+              }`}
+            >
+              {NAV_ITEMS.map((item) => {
+                const isActive = activeId === item.id;
+                return (
+                  <a
+                    key={item.id}
+                    href={item.href}
+                    onClick={(e) => handleNavClick(e, item.href)}
+                    className={`relative z-10 px-3.5 py-1.5 text-xs font-medium rounded-full transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0d0d0d] ${
+                      isActive ? 'text-[#ffffff]' : 'text-[#77756f] hover:text-[#0d0d0d]'
+                    }`}
+                  >
+                    {isActive && (
+                      <span
+                        className="absolute inset-0 bg-[#0d0d0d] rounded-full -z-10 transition-all duration-300 ease-[cubic-bezier(.16,1,.3,1)] shadow-sm"
+                        layout-id="activePill"
+                      />
+                    )}
+                    {item.label}
+                  </a>
+                );
+              })}
+            </nav>
 
-          {/* Right Mobile Menu Button */}
-          <div className="flex items-center gap-3 md:hidden">
+            {/* Audio Toggle Button in Header matching reference */}
+            <button
+              onClick={() => window.dispatchEvent(new CustomEvent('toggle-sound-event'))}
+              className="w-9 h-9 rounded-full bg-[#0d0d0d] text-white flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0d0d0d] cursor-pointer"
+              aria-label="Toggle audio introduction"
+              title="Toggle audio introduction"
+            >
+              <span className="flex items-center justify-center" aria-hidden="true">
+                <span className="flex gap-1 items-center">
+                  <span className="w-1 h-3.5 bg-white rounded-xs" />
+                  <span className="w-1 h-3.5 bg-white rounded-xs" />
+                </span>
+              </span>
+            </button>
+          </div>
+
+          {/* Right Mobile Menu Button + Sound */}
+          <div className="flex items-center gap-2 md:hidden">
+            <button
+              onClick={() => window.dispatchEvent(new CustomEvent('toggle-sound-event'))}
+              className="w-9 h-9 rounded-full bg-[#0d0d0d] text-white flex items-center justify-center active:scale-95 transition-all shadow-sm"
+              aria-label="Toggle audio"
+              title="Toggle audio"
+            >
+              <span className="flex gap-1 items-center" aria-hidden="true">
+                <span className="w-1 h-3 bg-white rounded-xs" />
+                <span className="w-1 h-3 bg-white rounded-xs" />
+              </span>
+            </button>
+
             <button
               onClick={() => setMobileMenuOpen(true)}
               className="px-4 py-2 text-xs font-semibold uppercase tracking-wider rounded-full bg-[#ffffff]/90 border border-[#0d0d0d]/10 text-[#0d0d0d] shadow-sm backdrop-blur-md active:scale-95"

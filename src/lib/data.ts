@@ -123,6 +123,9 @@ export const NAV_ITEMS: NavItem[] = [
   { id: 'contact', label: 'Contact', href: '#contact', index: '07' },
 ];
 
+export const SKILL_CATEGORIES = ['All', 'AI', 'Full-Stack', 'General'] as const;
+export type SkillCategory = (typeof SKILL_CATEGORIES)[number];
+
 export const SKILL_FAMILIES = [
   'All',
   'Languages',
@@ -131,6 +134,39 @@ export const SKILL_FAMILIES = [
   'AI & ML',
   'Tools & Core',
 ] as const;
+
+export function getSkillCategories(skill: SkillElement): ('AI' | 'Full-Stack' | 'General')[] {
+  const categories: ('AI' | 'Full-Stack' | 'General')[] = [];
+
+  // AI Category
+  if (
+    skill.family === 'AI & ML' ||
+    skill.name === 'Python' ||
+    skill.name === 'Document Processing'
+  ) {
+    categories.push('AI');
+  }
+
+  // Full-Stack Category
+  if (
+    skill.family === 'Frontend' ||
+    skill.family === 'Backend' ||
+    ['TypeScript', 'JavaScript', 'SQL', 'Python', 'Git', 'GitHub', 'Postman'].includes(skill.name)
+  ) {
+    categories.push('Full-Stack');
+  }
+
+  // General Category (Core CS, Languages, Systems, Foundational Tools)
+  if (
+    skill.family === 'Languages' ||
+    skill.family === 'Tools & Core' ||
+    skill.name === 'Responsive UI'
+  ) {
+    categories.push('General');
+  }
+
+  return categories;
+}
 
 export const SKILLS: SkillElement[] = [
   // Languages
