@@ -11,19 +11,42 @@ export const Hero: React.FC = () => {
   const { scrollTo } = useScroll();
   const heroRef = useRef<HTMLElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const [soundEnabled, setSoundEnabled] = useState(false);
   const [autoplayBlocked, setAutoplayBlocked] = useState(true);
+  const [customVideoLoaded, setCustomVideoLoaded] = useState(false);
 
-  // Spoken voiceover function for Jayaram's introduction
+  // Spoken voiceover function with natural male voice for Jayaram's introduction
   const speakIntro = () => {
     if (!('speechSynthesis' in window)) return;
     window.speechSynthesis.cancel();
+
     const text =
       "Hi, I'm Jayaram. I'm a software engineer, AI engineer, and AI-focused full stack developer. I build responsive web applications, interactive websites, and AI powered platforms.";
     const utterance = new SpeechSynthesisUtterance(text);
+
+    // Prioritize natural male voice in English
+    const voices = window.speechSynthesis.getVoices();
+    const maleVoice =
+      voices.find(
+        (v) =>
+          v.lang.startsWith('en') &&
+          (v.name.toLowerCase().includes('male') ||
+            v.name.toLowerCase().includes('david') ||
+            v.name.toLowerCase().includes('guy') ||
+            v.name.toLowerCase().includes('george') ||
+            v.name.toLowerCase().includes('rishi') ||
+            v.name.toLowerCase().includes('daniel') ||
+            v.name.toLowerCase().includes('alex') ||
+            v.name.toLowerCase().includes('natural'))
+      ) || voices.find((v) => v.lang.startsWith('en'));
+
+    if (maleVoice) {
+      utterance.voice = maleVoice;
+    }
     utterance.rate = 1.0;
-    utterance.pitch = 1.0;
+    utterance.pitch = 0.92; // Warm natural male pitch
     window.speechSynthesis.speak(utterance);
   };
 
@@ -110,12 +133,44 @@ export const Hero: React.FC = () => {
     }
   };
 
+  // Direct 1:1 original video attachment via drag-and-drop or file selection
+  // Preserves 100% of every original video frame untouched with zero re-encoding
+  const handleFileChange = (file: File) => {
+    if (file && (file.type.startsWith('video/') || file.name.match(/\.(mp4|mov|webm)$/i))) {
+      const url = URL.createObjectURL(file);
+      if (videoRef.current) {
+        videoRef.current.src = url;
+        videoRef.current.load();
+        videoRef.current.play().catch(() => {});
+        setCustomVideoLoaded(true);
+      }
+    }
+  };
+
   return (
     <section
       id="hero"
       ref={heroRef}
       className="relative min-h-[100svh] flex flex-col justify-between pt-24 pb-12 overflow-hidden bg-[#f4f2ee]"
+      onDragOver={(e) => e.preventDefault()}
+      onDrop={(e) => {
+        e.preventDefault();
+        const file = e.dataTransfer.files?.[0];
+        if (file) handleFileChange(file);
+      }}
     >
+      {/* Hidden file input for uploading exact original video */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="video/mp4,video/quicktime,video/webm"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) handleFileChange(file);
+        }}
+      />
+
       {/* Giant outlined ghost word behind the person */}
       <div
         className="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden"
@@ -134,7 +189,8 @@ export const Hero: React.FC = () => {
       {/* Center Video Container */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
         <div
-          className="relative w-full max-w-[768px] aspect-[768/960] h-[62svh] md:h-[min(96svh,1040px)] flex items-center justify-center"
+          className="relative w-full max-w-[768px] aspect-[768/960] h-[62svh] md:h-[min(96svh,1040px)] flex items-center justify-center group pointer-events-auto"
+          title="Drag and drop your original intro.mp4 here or click upload to load directly"
         >
           <video
             ref={videoRef}
@@ -143,11 +199,22 @@ export const Hero: React.FC = () => {
             playsInline
             preload="auto"
             poster="/portrait-bust.webp"
-            className="w-full h-full object-contain pointer-events-auto mix-blend-multiply"
+            className="w-full h-full object-contain mix-blend-multiply transition-opacity duration-300"
           >
             <source src="/hero/hero.webm" type="video/webm" />
             <source src="/hero/hero.mp4" type="video/mp4" />
           </video>
+
+          {/* Quick upload badge to load exact original video file */}
+          <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="px-3 py-1.5 rounded-full bg-[#0d0d0d]/80 text-white text-[11px] font-mono backdrop-blur-md hover:bg-[#0d0d0d] transition-colors shadow-sm"
+              title="Select local intro.mp4 to play 100% untouched original video frames"
+            >
+              {customVideoLoaded ? 'Original Video Loaded ✓' : 'Load Original Video File'}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -162,8 +229,8 @@ export const Hero: React.FC = () => {
           )}
           <button
             onClick={toggleSound}
-            className="relative w-[46px] h-[46px] rounded-full bg-[#0d0d0d] text-[#ffffff] flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0d0d0d] focus-visible:ring-offset-2"
-            aria-label={soundEnabled ? 'Mute audio' : 'Unmute audio'}
+            className="relative w-[46px] h-[46px] rounded-full bg-[#0d0d0d] text-[#ffffff] flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0d0d0d] focus-visible:ring-offset-2 cursor-pointer"
+            aria-label={soundEnabled ? 'Mute audio' : 'Unmute audio (male voice dialogue)'}
           >
             {soundEnabled ? (
               // ❚❚ (two pause bars indicating sound is active)
@@ -184,7 +251,7 @@ export const Hero: React.FC = () => {
 
       {/* Hero Bottom Content Overlay: Role heading + CTAs */}
       <div className="site-container relative z-20 mt-auto">
-        <div className="max-w-2xl bg-[#f4f2ee]/85 backdrop-blur-[6px] p-6 sm:p-8 rounded-[28px] border border-[#0d0d0d]/5 shadow-[0_12px_40px_rgba(0,0,0,0.03)]">
+        <div className="max-w-2xl bg-[#f4f2ee]/85 backdrop-blur-[6px] p-6 sm:p-8 rounded-[28px] border border-[#0d0d0d]/5 shadow-[0_12px_40px_rgba(0,0,0,0.03)] rv is-in">
           <div className="font-mono-tag mb-3 flex items-center gap-2">
             <span>00</span>
             <span>—</span>
