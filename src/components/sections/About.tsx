@@ -207,9 +207,9 @@ export const About: React.FC = () => {
                   <div className="flex flex-col items-center my-auto">
                     <div className="relative group w-[128px] h-[156px] rounded-2xl p-1 bg-gradient-to-b from-[#e9e6e0] to-[#ffffff] border border-[#0d0d0d]/15 shadow-inner overflow-hidden">
                       <img
-                        src="/portrait-bust.webp"
+                        src="/jayaram-id-portrait.jpg"
                         alt="Sappa Jayaram Siva Prasad"
-                        className="w-full h-full object-cover rounded-xl transition-transform duration-500 group-hover:scale-105"
+                        className="w-full h-full object-cover object-top rounded-xl transition-transform duration-500 group-hover:scale-105"
                       />
                     </div>
 

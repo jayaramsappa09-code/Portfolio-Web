@@ -73,13 +73,6 @@ export const Navigation: React.FC = () => {
 
   return (
     <>
-      {/* 2px Ink Scroll-Progress Bar */}
-      <div
-        className="fixed top-0 left-0 right-0 h-[2px] bg-[#0d0d0d] z-50 origin-left transition-transform duration-75"
-        style={{ transform: `scaleX(${scrollProgress})` }}
-        aria-hidden="true"
-      />
-
       {/* Main Top Header */}
       <header
         className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
@@ -117,10 +110,25 @@ export const Navigation: React.FC = () => {
               })}
             </nav>
 
+            {/* Command Palette Trigger Button (Ctrl+K) */}
+            <button
+              onClick={() => window.dispatchEvent(new CustomEvent('open-command-palette'))}
+              className="hidden lg:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/90 border border-[#0d0d0d]/10 text-xs font-mono text-[#555] hover:text-[#0d0d0d] hover:border-[#0d0d0d]/30 transition-all shadow-xs cursor-pointer ml-1"
+              title="Search sections and actions (Ctrl+K)"
+              aria-label="Search sections and actions (Ctrl+K)"
+            >
+              <svg className="w-3 h-3 text-[#777]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+              <span>Search</span>
+              <kbd className="text-[9px] px-1.5 py-0.2 rounded bg-[#f4f2ee] border border-[#0d0d0d]/10 text-[#777]">⌘K</kbd>
+            </button>
+
             {/* Circular Sound Toggle (matching top-right blue/black circle on laptop screen) */}
             <button
               onClick={() => window.dispatchEvent(new CustomEvent('toggle-sound-event'))}
-              className="w-8 h-8 rounded-full bg-[#1e293b] text-white flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0d0d0d] cursor-pointer ml-2"
+              className="w-8 h-8 rounded-full bg-[#1e293b] text-white flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0d0d0d] cursor-pointer ml-1"
               aria-label="Toggle audio introduction"
               title="Toggle audio introduction"
             >
@@ -133,8 +141,20 @@ export const Navigation: React.FC = () => {
             </button>
           </div>
 
-          {/* Mobile Right: Sound + Menu */}
-          <div className="flex items-center gap-3 md:hidden">
+          {/* Mobile Right: Search + Sound + Menu */}
+          <div className="flex items-center gap-2.5 md:hidden">
+            <button
+              onClick={() => window.dispatchEvent(new CustomEvent('open-command-palette'))}
+              className="w-8 h-8 rounded-full bg-white/90 border border-[#0d0d0d]/10 text-[#0d0d0d] flex items-center justify-center active:scale-95 transition-all shadow-xs"
+              aria-label="Open search command palette"
+              title="Search (Ctrl+K)"
+            >
+              <svg className="w-3.5 h-3.5 text-[#555]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+            </button>
+
             <button
               onClick={() => window.dispatchEvent(new CustomEvent('toggle-sound-event'))}
               className="w-8 h-8 rounded-full bg-[#1e293b] text-white flex items-center justify-center active:scale-95 transition-all shadow-sm"

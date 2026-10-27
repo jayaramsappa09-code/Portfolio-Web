@@ -6,6 +6,8 @@
 import React from 'react';
 import { ScrollProvider } from './lib/scroll';
 import { RevealObserver } from './lib/RevealObserver';
+import { ReadingProgressBar } from './components/ui/ReadingProgressBar';
+import { CommandPalette } from './components/ui/CommandPalette';
 import { Navigation } from './components/Navigation';
 import { Hero } from './components/hero/Hero';
 import { About } from './components/sections/About';
@@ -22,6 +24,12 @@ export default function App() {
     <ScrollProvider>
       <RevealObserver />
       <div className="relative min-h-screen bg-[#f4f2ee] text-[#0d0d0d] font-sans selection:bg-[#0d0d0d] selection:text-[#f4f2ee]">
+        {/* Thin, Fixed Reading Progress Bar at the top of the viewport */}
+        <ReadingProgressBar />
+
+        {/* Global Command Palette (Ctrl+K / Cmd+K) */}
+        <CommandPalette />
+
         {/* Persistent Navigation */}
         <Navigation />
 
