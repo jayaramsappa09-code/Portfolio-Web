@@ -89,6 +89,14 @@ export interface AchievementItem {
   brandColor: string;
 }
 
+export interface FAQItem {
+  id: string;
+  index: string;
+  question: string;
+  answer: string;
+  category: 'Services & Scope' | 'AI & Architecture' | 'Collaboration' | 'Delivery';
+}
+
 export const PROFILE: Profile = {
   name: 'Sappa Jayaram Siva Prasad',
   shortName: 'Jayaram Sappa',
@@ -120,7 +128,8 @@ export const NAV_ITEMS: NavItem[] = [
   { id: 'certifications', label: 'Certifications', href: '#certifications', index: '04' },
   { id: 'experience', label: 'Experience', href: '#experience', index: '05' },
   { id: 'achievements', label: 'Achievements', href: '#achievements', index: '06' },
-  { id: 'contact', label: 'Contact', href: '#contact', index: '07' },
+  { id: 'faq', label: 'FAQ', href: '#faq', index: '07' },
+  { id: 'contact', label: 'Contact', href: '#contact', index: '08' },
 ];
 
 export const SKILL_CATEGORIES = ['All', 'AI', 'Full-Stack', 'General'] as const;
@@ -704,3 +713,55 @@ export const ACHIEVEMENTS: AchievementItem[] = [
     brandColor: '#00EA64',
   },
 ];
+
+export const FAQS: FAQItem[] = [
+  {
+    id: 'services',
+    index: '01',
+    category: 'Services & Scope',
+    question: 'What specific services do you provide for clients and startups?',
+    answer:
+      'I specialize in end-to-end AI engineering and full-stack software development. This includes building custom generative AI workflows (Google Gemini GenAI API, structured outputs, agentic tools), intelligent Retrieval-Augmented Generation (RAG) platforms with vector databases, responsive modern web apps using React, TypeScript, and Tailwind CSS, and scalable backend APIs using Node.js, Express.js, Supabase, and PostgreSQL.',
+  },
+  {
+    id: 'ai-reliability',
+    index: '02',
+    category: 'AI & Architecture',
+    question: 'How do you prevent hallucinations and ensure AI outputs are accurate?',
+    answer:
+      'I implement grounded RAG pipelines with semantic vector embeddings, strict JSON schema validation, and few-shot prompt engineering. By grounding queries in your verified business data, documents, or knowledge base, the model returns verifiable, hallucination-resistant responses with source citations rather than speculative answers.',
+  },
+  {
+    id: 'timeline',
+    index: '03',
+    category: 'Delivery',
+    question: 'What does your typical project timeline and milestone process look like?',
+    answer:
+      'I work in focused, transparent sprints. A typical minimum viable product (MVP) takes 2 to 4 weeks from discovery to production deployment. You receive continuous staging previews, clear GitHub pull requests, and milestone walkthroughs so you see working progress at every step.',
+  },
+  {
+    id: 'tech-stack',
+    index: '04',
+    category: 'AI & Architecture',
+    question: 'Can you work with my existing codebase, team, or specific tech stack?',
+    answer:
+      'Yes. I have experience integrating with existing codebases, modernizing legacy architectures, and collaborating via Git-based CI/CD workflows. Whether you need an AI feature layered into an existing React/Node app or an entirely new platform built from scratch, I adapt to your infrastructure.',
+  },
+  {
+    id: 'communication',
+    index: '05',
+    category: 'Collaboration',
+    question: 'How do we communicate throughout the development lifecycle?',
+    answer:
+      'Clear, asynchronous communication is central to my workflow. I communicate via Slack, Discord, Email, or WhatsApp, complemented by regular progress demos. All code, architecture diagrams, and documentation are shared in real-time on GitHub.',
+  },
+  {
+    id: 'availability',
+    index: '06',
+    category: 'Services & Scope',
+    question: 'Are you available for contract, freelance projects, or full-time opportunities?',
+    answer:
+      'Yes. I am actively available for select freelance engineering engagements, high-impact consulting projects, and full-time software engineering and AI engineering roles. You can reach out directly through the contact form or connect on LinkedIn to discuss your requirements.',
+  },
+];
+

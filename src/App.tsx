@@ -14,6 +14,7 @@ import { Work } from './components/sections/Work';
 import { Certifications } from './components/sections/Certifications';
 import { Experience } from './components/sections/Experience';
 import { Achievements } from './components/sections/Achievements';
+import { FAQ } from './components/sections/FAQ';
 import { Contact } from './components/sections/Contact';
 
 export default function App() {
@@ -33,6 +34,7 @@ export default function App() {
           <Certifications />
           <Experience />
           <Achievements />
+          <FAQ />
           <Contact />
         </main>
       </div>

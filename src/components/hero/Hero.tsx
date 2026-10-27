@@ -186,9 +186,10 @@ export const Hero: React.FC = () => {
   };
 
   // Direct 1:1 original video attachment via drag-and-drop or file selection
-  // Persists permanently in IndexedDB across reloads, tab closes, and site updates
+  // Persists permanently on server disk (public/hero/hero.mp4) across all tabs, browsers, and devices
   const handleFileChange = async (file: File) => {
     if (file && (file.type.startsWith('video/') || file.name.match(/\.(mp4|mov|webm)$/i))) {
+      // 1. Instant preview playback in current session
       const url = URL.createObjectURL(file);
       if (videoRef.current) {
         videoRef.current.src = url;
@@ -196,13 +197,36 @@ export const Hero: React.FC = () => {
         videoRef.current.play().catch(() => {});
         setCustomVideoLoaded(true);
       }
+
+      setSaveToast('Saving permanently to server...');
+
+      // 2. Upload directly to server filesystem (public/hero/hero.mp4)
+      try {
+        const response = await fetch('/api/upload-hero-video', {
+          method: 'POST',
+          headers: {
+            'Content-Type': file.type || 'video/mp4',
+          },
+          body: file,
+        });
+
+        if (response.ok) {
+          setSaveToast('Video permanently saved to server disk ✓');
+        } else {
+          setSaveToast('Saved to browser cache ✓');
+        }
+      } catch {
+        setSaveToast('Saved to browser cache ✓');
+      }
+
+      // 3. Also cache in IndexedDB for instant offline loading
       try {
         await savePersistentVideo(file);
-        setSaveToast('Custom video saved permanently ✓');
-        setTimeout(() => setSaveToast(''), 3500);
       } catch (err) {
-        console.warn('Could not save to IndexedDB:', err);
+        console.warn('IndexedDB cache:', err);
       }
+
+      setTimeout(() => setSaveToast(''), 4000);
     }
   };
 

@@ -137,7 +137,7 @@ export const Contact: React.FC = () => {
         
         {/* Top Tag */}
         <div className="font-mono-tag mb-6 flex items-center justify-between">
-          <span>07 — Get In Touch</span>
+          <span>08 — Get In Touch</span>
           <span>Andhra Pradesh, India (IST)</span>
         </div>
 
